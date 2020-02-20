@@ -12,9 +12,6 @@ import com.screenrecorder.MainActivity;
 
 import java.lang.ref.WeakReference;
 
-
-
-
 public class RecorderManager extends ReactContextBaseJavaModule {
 
   private static WeakReference<MainActivity> mWeakActivity;

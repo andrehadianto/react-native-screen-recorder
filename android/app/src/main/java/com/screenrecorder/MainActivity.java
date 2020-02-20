@@ -16,6 +16,9 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.io.IOException;
 
 public class MainActivity extends ReactActivity {
@@ -32,6 +35,7 @@ public class MainActivity extends ReactActivity {
     private MediaRecorder mMediaRecorder;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private String videoPath;
+    private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -119,19 +123,18 @@ public class MainActivity extends ReactActivity {
     }
 
     private VirtualDisplay createVirtualDisplay() {
-        return mMediaProjection.createVirtualDisplay("MainActivity",
-                DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                mMediaRecorder.getSurface(), null /*Callbacks*/, null
-                /*Handler*/);
+        return mMediaProjection.createVirtualDisplay("MainActivity", DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null /* Callbacks */, null
+        /* Handler */);
     }
 
     private void initRecorder() {
+        Date date = new Date();
         try {
             mMediaRecorder = new MediaRecorder();
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/video.mp4";
+            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/screenomics_" + sdf.format(date) + ".mp4";
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
@@ -180,8 +183,8 @@ public class MainActivity extends ReactActivity {
     }
 
     /**
-     * Returns the name of the main component registered from JavaScript.
-     * This is used to schedule rendering of the component.
+     * Returns the name of the main component registered from JavaScript. This is
+     * used to schedule rendering of the component.
      */
     @Override
     protected String getMainComponentName() {
