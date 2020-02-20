@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,10 +8,8 @@ import {
   Button,
   NativeModules,
   Platform,
-  DeviceEventEmitter,
+  DeviceEventEmitter
 } from "react-native";
-import VideoPlayer from "react-native-video-controls";
-import * as RNFS from "react-native-fs";
 
 // NativeModules refer to Android's main/java folder.
 // It serves as a bridge between ReactNative class and Android Java class
@@ -23,7 +21,7 @@ class App extends Component {
     this.state = {
       disableStart: false,
       disableStopped: true,
-      androidVideoUrl: null,
+      androidVideoUrl: null
     };
 
     DeviceEventEmitter.addListener("updateFilePath", filePath => {
@@ -33,18 +31,27 @@ class App extends Component {
   }
 
   start = () => {
-    RecorderManager.start();
+    console.log("starting background task");
+    setInterval(() => {
+      RecorderManager.start();
+      console.log("recording");
+      RecorderManager.stop();
+      console.log("stopping");
+    }, 10000);
+
+    // RecorderManager.start();
     this.setState({
       disableStart: true,
-      disableStopped: false,
+      disableStopped: false
     });
   };
 
   stop = () => {
-    RecorderManager.stop();
+    clearInterval();
+    // RecorderManager.stop();
     this.setState({
       disableStart: false,
-      disableStopped: true,
+      disableStopped: true
     });
   };
 
@@ -73,7 +80,11 @@ class App extends Component {
     return (
       <View style={styles.container}>
         <Text>Captured video filepath</Text>
-        {androidVideoUrl ? <Text>{androidVideoUrl}</Text> : <Text>No video captured</Text>}
+        {androidVideoUrl ? (
+          <Text>{androidVideoUrl}</Text>
+        ) : (
+          <Text>No video captured</Text>
+        )}
         <Text>{androidVideoUrl}</Text>
         {this.rendernControlBtnGroup()}
       </View>
