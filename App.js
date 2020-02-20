@@ -13,16 +13,16 @@ import {
 import VideoPlayer from "react-native-video-controls";
 import * as RNFS from "react-native-fs";
 
+// NativeModules refer to Android's main/java folder.
+// It serves as a bridge between ReactNative class and Android Java class
 const { RecorderManager } = NativeModules;
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      videoUri: null,
       disableStart: false,
       disableStopped: true,
-      disablePlayable: true,
       androidVideoUrl: null,
     };
 
@@ -37,76 +37,19 @@ class App extends Component {
     this.setState({
       disableStart: true,
       disableStopped: false,
-      disablePlayable: true
     });
   };
 
   stop = () => {
     RecorderManager.stop();
     this.setState({
-      disableStart: true,
-      disableStopped: true,
-      disablePlayable: false
-    });
-  };
-
-  play = () => {
-    const { androidVideoUrl } = this.state;
-    if (androidVideoUrl) {
-      this.setState({
-        videoUri: androidVideoUrl,
-        disableStart: true,
-        disableStopped: true,
-        disablePlayable: true
-      });
-    }
-  };
-
-  writeFile = () => {
-    const path = RNFS.DocumentDirectoryPath + "/" + Date.now().toString();
-
-    RNFS.writeFile(path, "New photo", "utf8")
-      .then(success => {
-        console.log("File is written!");
-      })
-      .catch(err => {
-        console.warn(err.message);
-      });
-  }
-
-  readFile = () => {
-    const path = RNFS.DocumentDirectoryPath + "/test.txt";
-
-    // RNFS.readFile(path, "utf8")
-    //   .then((res) => {
-    //     console.log("Finish reading");
-    //     console.log(res);
-    //   })
-    //   .catch(err => {
-    //     console.warn(err.message);
-    //   });
-
-      RNFS.readDir(RNFS.DocumentDirectoryPath)
-      .then(files => {
-        console.log(files);
-      })
-      .catch((err) => {
-        console.warn(err.message, err.code);
-      });
-  }
-
-  playEnded = () => {
-    this.setState({
-      videoUri: null,
       disableStart: false,
       disableStopped: true,
-      disablePlayable: true,
-      androidVideoUrl: null
     });
   };
 
   rendernControlBtnGroup = () => {
-    const { disableStart, disableStopped, disablePlayable } = this.state;
+    const { disableStart, disableStopped } = this.state;
     return (
       <View style={styles.footer}>
         <Button
@@ -121,47 +64,17 @@ class App extends Component {
           title="Stop"
           onPress={this.stop}
         />
-        <Button
-          style={styles.button}
-          disabled={disablePlayable}
-          title="Play"
-          onPress={this.play}
-        />
-        <Button style={styles.button} title="Write" onPress={this.writeFile} />
-        <Button style={styles.button} title="Read" onPress={this.readFile} />
       </View>
     );
   };
 
-  componentDidMount() {
-    RNFS.readDir(RNFS.DocumentDirectoryPath)
-      .then(files => {
-        console.log(files);
-      })
-      .catch(err => {
-        console.warn(err.message, err.code);
-      });
-  }
-
   render() {
-    const { videoUri } = this.state;
+    const { androidVideoUrl } = this.state;
     return (
       <View style={styles.container}>
-        <View style={styles.content}>
-          {videoUri && (
-            <VideoPlayer source={{ uri: videoUri }} onEnd={this.playEnded} />
-          )}
-          {!videoUri && (
-            <TextInput
-              style={styles.textInput}
-              multiline
-              underlineColorAndroid="white"
-              onChangeText={text => this.setState({ text })}
-              value={this.state.text}
-            />
-          )}
-        </View>
-        <Text>{RNFS.DocumentDirectoryPath}</Text>
+        <Text>Captured video filepath</Text>
+        {androidVideoUrl ? <Text>{androidVideoUrl}</Text> : <Text>No video captured</Text>}
+        <Text>{androidVideoUrl}</Text>
         {this.rendernControlBtnGroup()}
       </View>
     );

@@ -2,6 +2,8 @@ package com.screenrecorder;
 
 import com.facebook.react.ReactActivity;
 
+import android.widget.Toast;
+import android.os.Handler;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
@@ -36,6 +38,7 @@ public class MainActivity extends ReactActivity {
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private String videoPath;
     private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    private Handler mHandler = new Handler();
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -83,7 +86,13 @@ public class MainActivity extends ReactActivity {
     }
 
     public void startRecording() {
-
+        // try {
+        //     mHandler.postDelayed(captureInterval, 0);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     mMediaRecorder = null;
+        //     mMediaProjection = null;
+        // }
         try {
             initRecorder();
             shareScreen();
@@ -95,10 +104,11 @@ public class MainActivity extends ReactActivity {
     }
 
     public void stopRecording() {
-
-        if (mMediaRecorder == null) {
-            return;
-        }
+        // try {
+        //     mHandler.removeCallbacks(captureInterval);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
         try {
             mMediaRecorder.setOnErrorListener(null);
             mMediaRecorder.stop();
@@ -112,6 +122,19 @@ public class MainActivity extends ReactActivity {
     public String getVideoPath() {
         return videoPath;
     }
+
+    private Runnable captureInterval = new Runnable() {
+        public void run() {
+            // initRecorder();
+            // shareScreen();
+            mHandler.postDelayed(this, 5000);
+            // mMediaRecorder.setOnErrorListener(null);
+            // mMediaRecorder.stop();
+            // mMediaRecorder.reset();
+            // stopScreenSharing();
+            Toast.makeText(getApplicationContext(), "5s Video is captured", Toast.LENGTH_SHORT).show();
+        };
+    };
 
     private void shareScreen() {
         if (mMediaProjection == null) {
@@ -134,7 +157,8 @@ public class MainActivity extends ReactActivity {
             mMediaRecorder = new MediaRecorder();
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/screenomics_" + sdf.format(date) + ".mp4";
+            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/screenomics_"
+                    + sdf.format(date) + ".mp4";
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
