@@ -16,13 +16,21 @@ import * as RNFS from "react-native-fs";
 const { RecorderManager } = NativeModules;
 
 class App extends Component {
-  state = {
-    videoUri: null,
-    disableStart: false,
-    disableStopped: true,
-    disablePlayable: true,
-    androidVideoUrl: null,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      videoUri: null,
+      disableStart: false,
+      disableStopped: true,
+      disablePlayable: true,
+      androidVideoUrl: null,
+    };
+
+    DeviceEventEmitter.addListener("updateFilePath", filePath => {
+      console.log(filePath);
+      this.setState({ androidVideoUrl: filePath });
+    });
+  }
 
   start = () => {
     RecorderManager.start();
@@ -54,7 +62,7 @@ class App extends Component {
     }
   };
 
-  writeFile() {
+  writeFile = () => {
     const path = RNFS.DocumentDirectoryPath + "/" + Date.now().toString();
 
     RNFS.writeFile(path, "New photo", "utf8")
@@ -66,7 +74,7 @@ class App extends Component {
       });
   }
 
-  readFile() {
+  readFile = () => {
     const path = RNFS.DocumentDirectoryPath + "/test.txt";
 
     // RNFS.readFile(path, "utf8")
@@ -97,14 +105,6 @@ class App extends Component {
     });
   };
 
-  keyboardDidShow = () => {
-    this.setState({ keyboardIsShown: true });
-  };
-
-  keyboardDidHide = () => {
-    this.setState({ keyboardIsShown: false });
-  };
-
   rendernControlBtnGroup = () => {
     const { disableStart, disableStopped, disablePlayable } = this.state;
     return (
@@ -132,14 +132,6 @@ class App extends Component {
       </View>
     );
   };
-
-  componentWillMount() {
-    DeviceEventEmitter.addListener("updateFilePath", filePath => {
-      console.log(filePath);
-
-      this.setState({ androidVideoUrl: filePath });
-    });
-  }
 
   componentDidMount() {
     RNFS.readDir(RNFS.DocumentDirectoryPath)
