@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Component} from "react";
 import {
   StyleSheet,
   Text,
@@ -16,7 +16,7 @@ import * as RNFS from "react-native-fs";
 
 const { RecorderManager } = NativeModules;
 
-class App extends React.Component {
+class App extends Component {
   state = {
     videoUri: null,
     disableStart: false,
@@ -45,39 +45,16 @@ class App extends React.Component {
   };
 
   play = () => {
-    switch (Platform.OS) {
-      case "android":
-        const { androidVideoUrl } = this.state;
-        if (androidVideoUrl) {
-          this.setState({
-            videoUri: androidVideoUrl,
-            disableStart: true,
-            disableStopped: true,
-            disablePlayable: true
-          });
-        }
-        break;
-
-      case "ios":
-        CameraRoll.getPhotos({
-          first: 1,
-          assetType: "Videos"
-        }).then(r => {
-          if (r.edges.length > 0) {
-            const video = r.edges[0].node.image;
-            this.setState({
-              videoUri: video.uri,
-              disableStart: true,
-              disableStopped: true,
-              disablePlayable: true
-            });
-          }
-        });
-        break;
-
-      default:
-        break;
+    const { androidVideoUrl } = this.state;
+    if (androidVideoUrl) {
+      this.setState({
+        videoUri: androidVideoUrl,
+        disableStart: true,
+        disableStopped: true,
+        disablePlayable: true
+      });
     }
+    break;
   };
 
   writeFile() {
@@ -195,9 +172,6 @@ class App extends React.Component {
     const { videoUri, keyboardIsShown } = this.state;
     return (
       <View style={styles.container}>
-        {Platform.OS === "ios" &&
-          keyboardIsShown &&
-          this.rendernControlBtnGroup()}
         <View style={styles.content}>
           {videoUri && (
             <VideoPlayer source={{ uri: videoUri }} onEnd={this.playEnded} />
