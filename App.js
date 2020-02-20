@@ -9,7 +9,6 @@ import {
   NativeModules,
   Platform,
   DeviceEventEmitter,
-  Keyboard
 } from "react-native";
 import VideoPlayer from "react-native-video-controls";
 import * as RNFS from "react-native-fs";
@@ -23,7 +22,6 @@ class App extends Component {
     disableStopped: true,
     disablePlayable: true,
     androidVideoUrl: null,
-    keyboardIsShown: false
   };
 
   start = () => {
@@ -54,7 +52,6 @@ class App extends Component {
         disablePlayable: true
       });
     }
-    break;
   };
 
   writeFile() {
@@ -145,15 +142,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this.keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this.keyboardDidHide
-    );
-
     RNFS.readDir(RNFS.DocumentDirectoryPath)
       .then(files => {
         console.log(files);
@@ -163,13 +151,8 @@ class App extends Component {
       });
   }
 
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
-
   render() {
-    const { videoUri, keyboardIsShown } = this.state;
+    const { videoUri } = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.content}>
