@@ -2,9 +2,7 @@ import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
-  CameraRoll,
   Button,
   NativeModules,
   Platform,
@@ -31,15 +29,15 @@ class App extends Component {
   }
 
   start = () => {
-    console.log("starting background task");
-    setInterval(() => {
-      RecorderManager.start();
-      console.log("recording");
-      RecorderManager.stop();
-      console.log("stopping");
-    }, 10000);
+    // console.log("starting background task");
+    // setInterval(() => {
+    //   RecorderManager.start();
+    //   console.log("recording");
+    //   RecorderManager.stop();
+    //   console.log("stopping");
+    // }, 10000);
 
-    // RecorderManager.start();
+    RecorderManager.start();
     this.setState({
       disableStart: true,
       disableStopped: false
@@ -47,8 +45,8 @@ class App extends Component {
   };
 
   stop = () => {
-    clearInterval();
-    // RecorderManager.stop();
+    // clearInterval();
+    RecorderManager.stop();
     this.setState({
       disableStart: false,
       disableStopped: true

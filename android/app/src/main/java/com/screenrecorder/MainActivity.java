@@ -87,11 +87,11 @@ public class MainActivity extends ReactActivity {
 
     public void startRecording() {
         // try {
-        //     mHandler.postDelayed(captureInterval, 0);
+        // mHandler.postDelayed(captureInterval, 0);
         // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     mMediaRecorder = null;
-        //     mMediaProjection = null;
+        // e.printStackTrace();
+        // mMediaRecorder = null;
+        // mMediaProjection = null;
         // }
         try {
             initRecorder();
@@ -105,9 +105,9 @@ public class MainActivity extends ReactActivity {
 
     public void stopRecording() {
         // try {
-        //     mHandler.removeCallbacks(captureInterval);
+        // mHandler.removeCallbacks(captureInterval);
         // } catch (Exception e) {
-        //     e.printStackTrace();
+        // e.printStackTrace();
         // }
         try {
             mMediaRecorder.setOnErrorListener(null);
@@ -157,12 +157,13 @@ public class MainActivity extends ReactActivity {
             mMediaRecorder = new MediaRecorder();
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/screenomics/screenomics_" + sdf.format(date) + ".mp4";
+            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    + "/screenomics/screenomics_" + sdf.format(date) + ".mp4";
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-            mMediaRecorder.setVideoFrameRate(30);
+            mMediaRecorder.setVideoFrameRate(3);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
