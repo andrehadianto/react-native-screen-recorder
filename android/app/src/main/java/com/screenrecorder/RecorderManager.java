@@ -24,7 +24,6 @@ public class RecorderManager extends ReactContextBaseJavaModule {
     mWeakActivity = new WeakReference<MainActivity>(activity);
   }
 
-
   @Override
   public String getName() {
     return "RecorderManager";
@@ -40,11 +39,18 @@ public class RecorderManager extends ReactContextBaseJavaModule {
   public void stop() {
     mWeakActivity.get().stopRecording();
     String filePath = mWeakActivity.get().getVideoPath();
-    getReactApplicationContext()
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit("updateFilePath", filePath);
+    getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit("updateFilePath", filePath);
 
     Toast.makeText(getReactApplicationContext(), "stopped", Toast.LENGTH_SHORT).show();
+  }
 
+  @ReactMethod
+  public void checkStatus() {
+    boolean status = mWeakActivity.get().getIsRunning();
+    getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit("checkStatus", status);
+
+    Toast.makeText(getReactApplicationContext(), "checking Status", Toast.LENGTH_SHORT).show();
   }
 }

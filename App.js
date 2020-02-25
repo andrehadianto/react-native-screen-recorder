@@ -17,6 +17,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isRunning: false,
       disableStart: false,
       disableStopped: true,
       androidVideoUrl: null
@@ -26,17 +27,13 @@ class App extends Component {
       console.log(filePath);
       this.setState({ androidVideoUrl: filePath });
     });
+    DeviceEventEmitter.addListener("checkStatus", status => {
+      console.log(status);
+      this.setState({ isRunning: status });
+    });
   }
 
   start = () => {
-    // console.log("starting background task");
-    // setInterval(() => {
-    //   RecorderManager.start();
-    //   console.log("recording");
-    //   RecorderManager.stop();
-    //   console.log("stopping");
-    // }, 10000);
-
     RecorderManager.start();
     this.setState({
       disableStart: true,
@@ -45,7 +42,6 @@ class App extends Component {
   };
 
   stop = () => {
-    // clearInterval();
     RecorderManager.stop();
     this.setState({
       disableStart: false,
@@ -53,7 +49,11 @@ class App extends Component {
     });
   };
 
-  rendernControlBtnGroup = () => {
+  checkStatus = () => {
+    RecorderManager.checkStatus();
+  }
+
+  renderControlBtnGroup = () => {
     const { disableStart, disableStopped } = this.state;
     return (
       <View style={styles.footer}>
@@ -74,7 +74,7 @@ class App extends Component {
   };
 
   render() {
-    const { androidVideoUrl } = this.state;
+    const { androidVideoUrl, isRunning } = this.state;
     return (
       <View style={styles.container}>
         <Text>Captured video filepath</Text>
@@ -84,7 +84,9 @@ class App extends Component {
           <Text>No video captured</Text>
         )}
         <Text>{androidVideoUrl}</Text>
-        {this.rendernControlBtnGroup()}
+        {this.renderControlBtnGroup()}
+        <Button onPress={this.checkStatus} title="Check Status"/>
+        <Text>{isRunning.toString()}</Text>
       </View>
     );
   }
