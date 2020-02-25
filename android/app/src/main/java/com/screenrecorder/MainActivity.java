@@ -27,19 +27,20 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE = 1000;
-    private int mScreenDensity;
+    private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    private MediaProjection mMediaProjection;
     private MediaProjectionManager mProjectionManager;
+    private MediaProjectionCallback mMediaProjectionCallback;
+    private VirtualDisplay mVirtualDisplay;
+    private MediaRecorder mMediaRecorder;
     private static final int DISPLAY_WIDTH = 720;
     private static final int DISPLAY_HEIGHT = 1280;
-    private MediaProjection mMediaProjection;
-    private VirtualDisplay mVirtualDisplay;
-    private MediaProjectionCallback mMediaProjectionCallback;
-    private MediaRecorder mMediaRecorder;
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    private String videoPath;
-    private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     private Handler mHandler;
-
+    private String videoPath;
+    private int mScreenDensity;
+    private boolean isRunning;
+    
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -91,23 +92,13 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder = null;
             mMediaProjection = null;
         }
-        // try {
-        //     initRecorder();
-        //     shareScreen();
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     mMediaRecorder = null;
-        //     mMediaProjection = null;
-        // }
     }
 
     public void stopRecording() {
-        // try {
-        //     mHandler.removeCallbacks(captureInterval);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
         try {
+            mHandler.removeCallbacks(captureInterval);
+            // isRunning = false;
+
             mMediaRecorder.setOnErrorListener(null);
             mMediaRecorder.stop();
             mMediaRecorder.reset();
@@ -121,16 +112,17 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         return videoPath;
     }
 
+    public boolean getIsRunning() {
+        return isRunning;
+    }
+
     private Runnable captureInterval = new Runnable() {
         public void run() {
+            isRunning = true;
             initRecorder();
             shareScreen();
-            // mMediaRecorder.setOnErrorListener(null);
-            // mMediaRecorder.stop();
-            // mMediaRecorder.reset();
-            // stopScreenSharing();
             mHandler.postDelayed(this, 15000);
-            Toast.makeText(getApplicationContext(), "5s Video is captured", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Capturing screen", Toast.LENGTH_SHORT).show();
         };
     };
 
@@ -144,7 +136,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     }
 
     private VirtualDisplay createVirtualDisplay() {
-        return mMediaProjection.createVirtualDisplay("MainActivity", DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
+        return mMediaProjection.createVirtualDisplay(TAG, DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null /* Callbacks */, null
         /* Handler */);
     }
@@ -163,8 +155,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
             mMediaRecorder.setVideoFrameRate(30);
-            // mMediaRecorder.setCaptureRate(3);
-            mMediaRecorder.setMaxDuration(3000);
+            mMediaRecorder.setMaxDuration(1000);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
