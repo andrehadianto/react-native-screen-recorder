@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.IOException;
 
-public class MainActivity extends ReactActivity {
+public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoListener {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE = 1000;
@@ -38,7 +38,7 @@ public class MainActivity extends ReactActivity {
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private String videoPath;
     private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-    private Handler mHandler = new Handler();
+    private Handler mHandler;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -52,14 +52,12 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
 
         RecorderManager.updateActivity(this);
-
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenDensity = metrics.densityDpi;
-
         mMediaRecorder = null;
-
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mHandler = new Handler();
     }
 
     @Override
@@ -86,28 +84,28 @@ public class MainActivity extends ReactActivity {
     }
 
     public void startRecording() {
-        // try {
-        // mHandler.postDelayed(captureInterval, 0);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // mMediaRecorder = null;
-        // mMediaProjection = null;
-        // }
         try {
-            initRecorder();
-            shareScreen();
+            mHandler.post(captureInterval);
         } catch (Exception e) {
             e.printStackTrace();
             mMediaRecorder = null;
             mMediaProjection = null;
         }
+        // try {
+        //     initRecorder();
+        //     shareScreen();
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     mMediaRecorder = null;
+        //     mMediaProjection = null;
+        // }
     }
 
     public void stopRecording() {
         // try {
-        // mHandler.removeCallbacks(captureInterval);
+        //     mHandler.removeCallbacks(captureInterval);
         // } catch (Exception e) {
-        // e.printStackTrace();
+        //     e.printStackTrace();
         // }
         try {
             mMediaRecorder.setOnErrorListener(null);
@@ -125,13 +123,13 @@ public class MainActivity extends ReactActivity {
 
     private Runnable captureInterval = new Runnable() {
         public void run() {
-            // initRecorder();
-            // shareScreen();
-            mHandler.postDelayed(this, 5000);
+            initRecorder();
+            shareScreen();
             // mMediaRecorder.setOnErrorListener(null);
             // mMediaRecorder.stop();
             // mMediaRecorder.reset();
             // stopScreenSharing();
+            mHandler.postDelayed(this, 15000);
             Toast.makeText(getApplicationContext(), "5s Video is captured", Toast.LENGTH_SHORT).show();
         };
     };
@@ -152,24 +150,34 @@ public class MainActivity extends ReactActivity {
     }
 
     private void initRecorder() {
-        Date date = new Date();
         try {
-            mMediaRecorder = new MediaRecorder();
-            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            Date date = new Date();
             videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                     + "/screenomics/screenomics_" + sdf.format(date) + ".mp4";
+            mMediaRecorder = new MediaRecorder();
+            mMediaRecorder.setOnInfoListener(this);
+            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-            mMediaRecorder.setVideoFrameRate(3);
+            mMediaRecorder.setVideoFrameRate(30);
+            // mMediaRecorder.setCaptureRate(3);
+            mMediaRecorder.setMaxDuration(3000);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
             mMediaRecorder.prepare();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+            Toast.makeText(getApplicationContext(), "Max duration reached", Toast.LENGTH_SHORT).show();
         }
     }
 
