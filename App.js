@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 
 import { store, persistor } from "./store/store";
 import Screenomics from "./Screenomics";
+import Network from "./Network";
 
 class App extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class App extends Component {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <Screenomics/>
+          <Network/>
         </PersistGate>
       </Provider>
     );

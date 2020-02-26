@@ -11,6 +11,7 @@ import {
 
 import RecorderManager from "./RecorderManager";
 
+
 class Screenomics extends Component {
   constructor(props) {
     super(props);
@@ -49,6 +50,10 @@ class Screenomics extends Component {
   checkStatus = () => {
     RecorderManager.checkStatus();
   };
+
+
+
+
 
   render() {
     const { androidVideoUrl, disableStart, disableStopped } = this.state;
@@ -126,3 +131,5 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Screenomics);
+
+
