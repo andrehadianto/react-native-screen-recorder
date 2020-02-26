@@ -2,6 +2,8 @@ package com.screenrecorder;
 
 import com.facebook.react.ReactActivity;
 
+import android.widget.Toast;
+import android.os.Handler;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
@@ -21,22 +23,24 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.IOException;
 
-public class MainActivity extends ReactActivity {
+public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoListener {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE = 1000;
-    private int mScreenDensity;
+    private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    private MediaProjection mMediaProjection;
     private MediaProjectionManager mProjectionManager;
+    private MediaProjectionCallback mMediaProjectionCallback;
+    private VirtualDisplay mVirtualDisplay;
+    private MediaRecorder mMediaRecorder;
     private static final int DISPLAY_WIDTH = 720;
     private static final int DISPLAY_HEIGHT = 1280;
-    private MediaProjection mMediaProjection;
-    private VirtualDisplay mVirtualDisplay;
-    private MediaProjectionCallback mMediaProjectionCallback;
-    private MediaRecorder mMediaRecorder;
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+    private Handler mHandler;
     private String videoPath;
-    private static final DateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-
+    private int mScreenDensity;
+    private boolean isRunning;
+    
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -49,14 +53,12 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
 
         RecorderManager.updateActivity(this);
-
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenDensity = metrics.densityDpi;
-
         mMediaRecorder = null;
-
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mHandler = new Handler();
     }
 
     @Override
@@ -83,10 +85,8 @@ public class MainActivity extends ReactActivity {
     }
 
     public void startRecording() {
-
         try {
-            initRecorder();
-            shareScreen();
+            mHandler.post(captureInterval);
         } catch (Exception e) {
             e.printStackTrace();
             mMediaRecorder = null;
@@ -95,11 +95,10 @@ public class MainActivity extends ReactActivity {
     }
 
     public void stopRecording() {
-
-        if (mMediaRecorder == null) {
-            return;
-        }
         try {
+            mHandler.removeCallbacks(captureInterval);
+            // isRunning = false;
+
             mMediaRecorder.setOnErrorListener(null);
             mMediaRecorder.stop();
             mMediaRecorder.reset();
@@ -113,6 +112,20 @@ public class MainActivity extends ReactActivity {
         return videoPath;
     }
 
+    public boolean getIsRunning() {
+        return isRunning;
+    }
+
+    private Runnable captureInterval = new Runnable() {
+        public void run() {
+            isRunning = true;
+            initRecorder();
+            shareScreen();
+            mHandler.postDelayed(this, 15000);
+            Toast.makeText(getApplicationContext(), "Capturing screen", Toast.LENGTH_SHORT).show();
+        };
+    };
+
     private void shareScreen() {
         if (mMediaProjection == null) {
             startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
@@ -123,29 +136,39 @@ public class MainActivity extends ReactActivity {
     }
 
     private VirtualDisplay createVirtualDisplay() {
-        return mMediaProjection.createVirtualDisplay("MainActivity", DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
+        return mMediaProjection.createVirtualDisplay(TAG, DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null /* Callbacks */, null
         /* Handler */);
     }
 
     private void initRecorder() {
-        Date date = new Date();
         try {
+            Date date = new Date();
+            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    + "/screenomics/screenomics_" + sdf.format(date) + ".mp4";
             mMediaRecorder = new MediaRecorder();
+            mMediaRecorder.setOnInfoListener(this);
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            videoPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/screenomics_" + sdf.format(date) + ".mp4";
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
             mMediaRecorder.setVideoFrameRate(30);
+            mMediaRecorder.setMaxDuration(1000);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
             mMediaRecorder.prepare();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+            Toast.makeText(getApplicationContext(), "Max duration reached", Toast.LENGTH_SHORT).show();
         }
     }
 
