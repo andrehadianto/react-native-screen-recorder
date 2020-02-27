@@ -8,11 +8,21 @@ export default class Network extends Component {
   }
 
   CheckConnectivity = () => {
+    var that = this;
+    var hours = new Date().getHours(); //Current Hours
+    var min = new Date().getMinutes(); //Current Minutes
+    var sec = new Date().getSeconds(); //Current Seconds
+    that.setState({
+      //Setting the value of the date time
+      hours:
+        hours + ':' + min + ':' + sec,
+    });
     // For Android devices
     if (Platform.OS === "android") {
       NetInfo.isConnected.fetch().then(isConnected => {
         if (isConnected) {
           Alert.alert("You are online!");
+          Alert.alert(this.state.hours.toString())
         } else {
           Alert.alert("You are offline!");
         }
