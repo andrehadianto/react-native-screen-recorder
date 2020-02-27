@@ -4,36 +4,35 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
-  Platform,
   DeviceEventEmitter
 } from "react-native";
+import ToggleSwitch from "toggle-switch-react-native";
 
 import { setRunningState } from "./actions/stateActions";
 import RecorderManager from "./RecorderManager";
 
+// Color Pallette
+const gun_metal = "#292f36";
+const sunset_orange = "#ee6352";
+const cyan = "#08b2e3";
+const white_isabelline = "#efefef";
+const light_sea_green = "#1fb299";
+
 class Screenomics extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      androidVideoUrl: null
-    };
 
-    DeviceEventEmitter.addListener("updateFilePath", filePath => {
-      console.log(filePath);
-      this.setState({ androidVideoUrl: filePath });
-    });
     DeviceEventEmitter.addListener("checkStatus", status => {
       console.log(status);
-      () => this.props.reduxChangeStatus(status);
+      this.props.reduxChangeStatus(status);
     });
   }
 
-  toggle = () => {
+  toggleSwitch = value => {
     this.props.reduxChangeStatus(!this.props.isRunning);
-    if (this.props.isRunning) {
+    if (value) {
       RecorderManager.start();
-    } else if (!this.props.isRunning) {
+    } else if (!value) {
       RecorderManager.stop();
     }
   };
@@ -43,26 +42,21 @@ class Screenomics extends Component {
   };
 
   render() {
-    const { androidVideoUrl } = this.state;
     return (
       <View style={styles.container}>
-        <Text>Captured video filepath</Text>
-        {androidVideoUrl ? (
-          <Text>{androidVideoUrl}</Text>
+        <ToggleSwitch
+          style={styles.switch}
+          onColor={light_sea_green}
+          offColor={sunset_orange}
+          size="large"
+          onToggle={isOn => this.toggleSwitch(isOn)}
+          isOn={this.props.isRunning}
+        />
+        {this.props.isRunning ? (
+          <Text style={styles.text}>Screenomics: capturing</Text>
         ) : (
-          <Text>No video captured</Text>
+          <Text style={styles.text}>Screenomics: idle</Text>
         )}
-        <Button
-          style={styles.button}
-          onPress={this.toggle}
-          title="Switch toggle"
-        />
-        <Button
-          style={styles.button}
-          onPress={this.checkStatus}
-          title="Check status"
-        />
-        <Text>{`${this.props.isRunning}`}</Text>
       </View>
     );
   }
@@ -72,31 +66,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: "#fff",
+    backgroundColor: gun_metal,
     alignItems: "center",
     justifyContent: "center"
   },
-
-  content: {
-    flex: 1,
-    flexDirection: "row",
-    padding: 20,
-    justifyContent: "center"
-  },
-
-  textInput: {
-    borderColor: "gray",
-    borderWidth: 1,
-    flex: 1,
-    fontSize: 24
-  },
-
-  footer: {
-    backgroundColor: Platform.OS === "ios" ? "#eee" : "#fff",
-    flexDirection: "row",
-    alignSelf: "stretch",
-    justifyContent: "center",
+  switch: {
     paddingVertical: 20
+  },
+  text: {
+    paddingTop: 20,
+    color: white_isabelline
   }
 });
 

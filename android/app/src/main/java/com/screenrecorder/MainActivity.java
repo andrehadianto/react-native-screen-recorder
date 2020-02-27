@@ -108,10 +108,6 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         }
     }
 
-    public String getVideoPath() {
-        return videoPath;
-    }
-
     public boolean getIsRunning() {
         return isRunning;
     }
@@ -154,8 +150,8 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-            mMediaRecorder.setVideoFrameRate(30);
-            mMediaRecorder.setMaxDuration(300);
+            mMediaRecorder.setVideoFrameRate(3);
+            mMediaRecorder.setMaxDuration(1000);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
