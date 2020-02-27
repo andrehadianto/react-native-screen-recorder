@@ -41,6 +41,10 @@ class Screenomics extends Component {
     RecorderManager.checkStatus();
   };
 
+
+
+
+
   render() {
     return (
       <View style={styles.container}>
@@ -92,3 +96,5 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Screenomics);
+
+
