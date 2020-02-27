@@ -121,7 +121,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             isRunning = true;
             initRecorder();
             shareScreen();
-            mHandler.postDelayed(this, 15000);
+            mHandler.postDelayed(this, 5000);
             Toast.makeText(getApplicationContext(), "Capturing screen", Toast.LENGTH_SHORT).show();
         };
     };
@@ -155,7 +155,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
             mMediaRecorder.setVideoFrameRate(30);
-            mMediaRecorder.setMaxDuration(1000);
+            mMediaRecorder.setMaxDuration(300);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);

@@ -9,14 +9,13 @@ import {
   DeviceEventEmitter
 } from "react-native";
 
+import { setRunningState } from "./actions/stateActions";
 import RecorderManager from "./RecorderManager";
 
 class Screenomics extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      disableStart: false,
-      disableStopped: true,
       androidVideoUrl: null
     };
 
@@ -30,20 +29,13 @@ class Screenomics extends Component {
     });
   }
 
-  start = () => {
-    RecorderManager.start();
-    this.setState({
-      disableStart: true,
-      disableStopped: false
-    });
-  };
-
-  stop = () => {
-    RecorderManager.stop();
-    this.setState({
-      disableStart: false,
-      disableStopped: true
-    });
+  toggle = () => {
+    this.props.reduxChangeStatus(!this.props.isRunning);
+    if (this.props.isRunning) {
+      RecorderManager.start();
+    } else if (!this.props.isRunning) {
+      RecorderManager.stop();
+    }
   };
 
   checkStatus = () => {
@@ -51,7 +43,7 @@ class Screenomics extends Component {
   };
 
   render() {
-    const { androidVideoUrl, disableStart, disableStopped } = this.state;
+    const { androidVideoUrl } = this.state;
     return (
       <View style={styles.container}>
         <Text>Captured video filepath</Text>
@@ -60,21 +52,16 @@ class Screenomics extends Component {
         ) : (
           <Text>No video captured</Text>
         )}
-        <View style={styles.footer}>
-          <Button
-            style={styles.button}
-            disabled={disableStart}
-            title="Start"
-            onPress={this.start}
-          />
-          <Button
-            style={styles.button}
-            disabled={disableStopped}
-            title="Stop"
-            onPress={this.stop}
-          />
-        </View>
-        <Button onPress={this.checkStatus} title="Check status" />
+        <Button
+          style={styles.button}
+          onPress={this.toggle}
+          title="Switch toggle"
+        />
+        <Button
+          style={styles.button}
+          onPress={this.checkStatus}
+          title="Check status"
+        />
         <Text>{`${this.props.isRunning}`}</Text>
       </View>
     );
@@ -121,7 +108,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    reduxChangeStatus: trueFalse => dispatch(isRunning(trueFalse))
+    reduxChangeStatus: trueFalse => dispatch(setRunningState(trueFalse))
   };
 };
 
