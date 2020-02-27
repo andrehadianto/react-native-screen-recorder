@@ -38,10 +38,6 @@ public class RecorderManager extends ReactContextBaseJavaModule {
   @ReactMethod
   public void stop() {
     mWeakActivity.get().stopRecording();
-    String filePath = mWeakActivity.get().getVideoPath();
-    getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-        .emit("updateFilePath", filePath);
-
     Toast.makeText(getReactApplicationContext(), "stopped", Toast.LENGTH_SHORT).show();
   }
 

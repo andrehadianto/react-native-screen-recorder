@@ -1,19 +1,19 @@
+import { SET_RUNNING_STATE } from '../actions/stateActions';
+
 const initialState = {
   isRunning: false,
 };
 
 const stateReducer = (state = initialState, action) => {
   switch(action.type) {
-    case 'RUNNING': {
+    case SET_RUNNING_STATE: 
       return {
-        ...state,
         isRunning: action.trueFalse,
       }
-    }
 
-    default: {
+    default: 
       return state;
-    }
+    
   }
 }
 
