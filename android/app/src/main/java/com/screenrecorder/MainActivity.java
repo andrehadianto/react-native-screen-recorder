@@ -2,8 +2,8 @@ package com.screenrecorder;
 
 import com.facebook.react.ReactActivity;
 
+import android.app.KeyguardManager;
 import android.widget.Toast;
-import android.os.Handler;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
@@ -12,6 +12,7 @@ import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,8 +32,9 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     private MediaProjection mMediaProjection;
     private MediaProjectionManager mProjectionManager;
     private MediaProjectionCallback mMediaProjectionCallback;
-    private VirtualDisplay mVirtualDisplay;
+    private KeyguardManager mKeyguardManager;
     private MediaRecorder mMediaRecorder;
+    private VirtualDisplay mVirtualDisplay;
     private static final int DISPLAY_WIDTH = 720;
     private static final int DISPLAY_HEIGHT = 1280;
     private Handler mHandler;
@@ -58,6 +60,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         mScreenDensity = metrics.densityDpi;
         mMediaRecorder = null;
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         mHandler = new Handler();
     }
 
@@ -114,11 +117,12 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
 
     private Runnable captureInterval = new Runnable() {
         public void run() {
-            isRunning = true;
-            initRecorder();
-            shareScreen();
+            if (!mKeyguardManager.isKeyguardLocked()) {
+                isRunning = true;
+                initRecorder();
+                shareScreen();
+            }
             mHandler.postDelayed(this, 5000);
-            Toast.makeText(getApplicationContext(), "Capturing screen", Toast.LENGTH_SHORT).show();
         };
     };
 
@@ -150,8 +154,8 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-            mMediaRecorder.setVideoFrameRate(3);
-            mMediaRecorder.setMaxDuration(1000);
+            mMediaRecorder.setVideoFrameRate(30);
+            mMediaRecorder.setMaxDuration(400);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
             mMediaRecorder.setOrientationHint(orientation);
@@ -164,7 +168,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-            Toast.makeText(getApplicationContext(), "Max duration reached", Toast.LENGTH_SHORT).show();
+
         }
     }
 
