@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   StyleSheet,
   View,
   Text,
+  StatusBar,
   DeviceEventEmitter
 } from "react-native";
 import ToggleSwitch from "toggle-switch-react-native";
@@ -14,9 +15,9 @@ import RecorderManager from "./RecorderManager";
 // Color Pallette
 const gun_metal = "#292f36";
 const sunset_orange = "#ee6352";
-const cyan = "#08b2e3";
 const white_isabelline = "#efefef";
 const light_sea_green = "#1fb299";
+const sea_green = "#27debf";
 
 class Screenomics extends Component {
   constructor(props) {
@@ -41,27 +42,26 @@ class Screenomics extends Component {
     RecorderManager.checkStatus();
   };
 
-
-
-
-
   render() {
     return (
-      <View style={styles.container}>
-        <ToggleSwitch
-          style={styles.switch}
-          onColor={light_sea_green}
-          offColor={sunset_orange}
-          size="large"
-          onToggle={isOn => this.toggleSwitch(isOn)}
-          isOn={this.props.isRunning}
-        />
-        {this.props.isRunning ? (
-          <Text style={styles.text}>Screenomics: capturing</Text>
-        ) : (
-          <Text style={styles.text}>Screenomics: idle</Text>
-        )}
-      </View>
+      <Fragment>
+        <StatusBar translucent={true} />
+        <View style={styles.container}>
+          <ToggleSwitch
+            style={styles.switch}
+            onColor={sea_green}
+            offColor={sunset_orange}
+            size="large"
+            onToggle={isOn => this.toggleSwitch(isOn)}
+            isOn={this.props.isRunning}
+          />
+          {this.props.isRunning ? (
+            <Text style={styles.textCapturing}>CAPTURING</Text>
+          ) : (
+            <Text style={styles.textIdle}>IDLE</Text>
+          )}
+        </View>
+      </Fragment>
     );
   }
 }
@@ -75,11 +75,20 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   switch: {
-    paddingVertical: 20
+    paddingVertical: 20,
+    transform: [{ scaleX: 2 }, { scaleY: 2 }]
   },
-  text: {
+  textIdle: {
     paddingTop: 20,
-    color: white_isabelline
+    color: white_isabelline,
+    fontWeight: "bold",
+    fontSize: 14
+  },
+  textCapturing: {
+    paddingTop: 20,
+    color: light_sea_green,
+    fontWeight: "bold",
+    fontSize: 14
   }
 });
 
@@ -96,5 +105,3 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Screenomics);
-
-
