@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   StyleSheet,
   View,
   Text,
+  StatusBar,
   DeviceEventEmitter
 } from "react-native";
 import ToggleSwitch from "toggle-switch-react-native";
@@ -43,21 +44,24 @@ class Screenomics extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <ToggleSwitch
-          style={styles.switch}
-          onColor={sea_green}
-          offColor={sunset_orange}
-          size="large"
-          onToggle={isOn => this.toggleSwitch(isOn)}
-          isOn={this.props.isRunning}
-        />
-        {this.props.isRunning ? (
-          <Text style={styles.textCapturing}>CAPTURING</Text>
-        ) : (
-          <Text style={styles.textIdle}>IDLE</Text>
-        )}
-      </View>
+      <Fragment>
+        <StatusBar translucent={true} />
+        <View style={styles.container}>
+          <ToggleSwitch
+            style={styles.switch}
+            onColor={sea_green}
+            offColor={sunset_orange}
+            size="large"
+            onToggle={isOn => this.toggleSwitch(isOn)}
+            isOn={this.props.isRunning}
+          />
+          {this.props.isRunning ? (
+            <Text style={styles.textCapturing}>CAPTURING</Text>
+          ) : (
+            <Text style={styles.textIdle}>IDLE</Text>
+          )}
+        </View>
+      </Fragment>
     );
   }
 }
@@ -72,7 +76,7 @@ const styles = StyleSheet.create({
   },
   switch: {
     paddingVertical: 20,
-    transform: [{scaleX: 2}, {scaleY: 2}]
+    transform: [{ scaleX: 2 }, { scaleY: 2 }]
   },
   textIdle: {
     paddingTop: 20,
@@ -101,5 +105,3 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Screenomics);
-
-

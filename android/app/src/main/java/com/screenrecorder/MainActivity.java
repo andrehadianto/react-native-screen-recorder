@@ -40,8 +40,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     private Handler mHandler;
     private String videoPath;
     private int mScreenDensity;
-    private boolean isRunning;
-    
+
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -100,7 +99,6 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     public void stopRecording() {
         try {
             mHandler.removeCallbacks(captureInterval);
-            // isRunning = false;
 
             mMediaRecorder.setOnErrorListener(null);
             mMediaRecorder.stop();
@@ -111,18 +109,13 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         }
     }
 
-    public boolean getIsRunning() {
-        return isRunning;
-    }
-
     private Runnable captureInterval = new Runnable() {
         public void run() {
             if (!mKeyguardManager.isKeyguardLocked()) {
-                isRunning = true;
                 initRecorder();
                 shareScreen();
             }
-            mHandler.postDelayed(this, 5000);
+            mHandler.postDelayed(this, 10000);
         };
     };
 
@@ -149,12 +142,12 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaRecorder = new MediaRecorder();
             mMediaRecorder.setOnInfoListener(this);
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-            mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-            mMediaRecorder.setVideoFrameRate(30);
+            mMediaRecorder.setVideoEncodingBitRate(400 * 1000);
+            mMediaRecorder.setVideoFrameRate(15);
             mMediaRecorder.setMaxDuration(400);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             int orientation = ORIENTATIONS.get(rotation + 90);
@@ -168,7 +161,9 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-
+            mMediaRecorder.stop();
+            mVirtualDisplay.release();
+            mMediaRecorder.release();
         }
     }
 
