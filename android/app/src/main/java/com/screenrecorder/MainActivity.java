@@ -22,6 +22,7 @@ import android.view.Surface;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.File;
 import java.io.IOException;
 
 public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoListener {
@@ -61,6 +62,12 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         mHandler = new Handler();
+
+        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                "screenomics");
+        if (!f.exists()) {
+            f.mkdirs();
+        }
     }
 
     @Override
@@ -74,7 +81,6 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             mMediaProjection = null;
             return;
         }
-
         try {
             mMediaProjectionCallback = new MediaProjectionCallback();
             mMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
@@ -93,6 +99,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
             e.printStackTrace();
             mMediaRecorder = null;
             mMediaProjection = null;
+            e.printStackTrace();
         }
     }
 
@@ -111,11 +118,18 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
 
     private Runnable captureInterval = new Runnable() {
         public void run() {
-            if (!mKeyguardManager.isKeyguardLocked()) {
-                initRecorder();
-                shareScreen();
+            try {
+                if (!mKeyguardManager.isKeyguardLocked()) {
+                    initRecorder();
+                    shareScreen();
+                }
+            } catch (Exception e) {
+                mMediaRecorder.stop();
+                mVirtualDisplay.release();
+                mMediaRecorder.release();
+                e.printStackTrace();
             }
-            mHandler.postDelayed(this, 10000);
+            mHandler.postDelayed(this, 5000);
         };
     };
 
@@ -130,8 +144,7 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
 
     private VirtualDisplay createVirtualDisplay() {
         return mMediaProjection.createVirtualDisplay(TAG, DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null /* Callbacks */, null
-        /* Handler */);
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
     }
 
     private void initRecorder() {

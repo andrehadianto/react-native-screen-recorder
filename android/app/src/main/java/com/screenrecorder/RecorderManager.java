@@ -44,8 +44,8 @@ public class RecorderManager extends ReactContextBaseJavaModule {
   @ReactMethod
   public void checkStatus() {
     getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-        .emit("checkStatus", "Emitting things");
+        .emit("checkStatus", "filepath");
 
-    Toast.makeText(getReactApplicationContext(), "checking Status: ", Toast.LENGTH_SHORT).show();
+    Toast.makeText(getReactApplicationContext(), "checking Status: " + "filepath", Toast.LENGTH_SHORT).show();
   }
 }

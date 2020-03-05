@@ -5,9 +5,12 @@ import {
   View,
   Text,
   StatusBar,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  Button
 } from "react-native";
 import ToggleSwitch from "toggle-switch-react-native";
+import * as RNFS from "react-native-fs";
+import axios from "axios";
 
 import { setRunningState } from "./actions/stateActions";
 import RecorderManager from "./RecorderManager";
@@ -22,6 +25,9 @@ const sea_green = "#27debf";
 class Screenomics extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      nameArray: []
+    };
 
     DeviceEventEmitter.addListener("checkStatus", status => {
       console.log(status);
@@ -39,7 +45,41 @@ class Screenomics extends Component {
   };
 
   checkStatus = () => {
-    RecorderManager.checkStatus();
+    // RecorderManager.checkStatus();
+
+    const url =
+      "http://ec2-13-250-14-3.ap-southeast-1.compute.amazonaws.com:5000/upload";
+    RNFS.readDir(
+      `../${RNFS.ExternalStorageDirectoryPath}/Download/screenomics`
+    ).then(res => {
+      console.log("reading file");
+      res.map(file => {
+        const formData = new FormData();
+        const config = {
+          headers: {
+            "content-type": "application/json"
+          }
+        };
+        RNFS.readFile(
+          `../${RNFS.ExternalStorageDirectoryPath}/Download/screenomics/${file.name}`,
+          "base64"
+        ).then(res => {
+          console.log("appending");
+          axios
+            .post(url, { file: res }, config)
+            .then(res => console.log(res))
+            .catch(err => console.log(err));
+          // formData.append("file", res);
+        });
+        // .then(res => {
+        //   console.log("uploading");
+        //   axios
+        //     .post(url, formData, config)
+        //     .then(res => console.log(res))
+        //     .catch(err => console.log(err));
+        // });
+      });
+    });
   };
 
   render() {
@@ -60,6 +100,7 @@ class Screenomics extends Component {
           ) : (
             <Text style={styles.textIdle}>IDLE</Text>
           )}
+          {/* <Button onPress={this.checkStatus} title="Uploading" /> */}
         </View>
       </Fragment>
     );

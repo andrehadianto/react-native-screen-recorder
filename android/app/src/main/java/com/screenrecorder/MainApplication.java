@@ -3,6 +3,7 @@ package com.screenrecorder;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rnfs.RNFSPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 
 import com.facebook.react.ReactNativeHost;
@@ -25,7 +26,8 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(new MainReactPackage(), new AsyncStoragePackage(), new RecorderReactPackage());
+      return Arrays.<ReactPackage>asList(new MainReactPackage(),
+            new RNFSPackage(), new AsyncStoragePackage(), new RecorderReactPackage());
     }
 
     @Override
