@@ -22,6 +22,17 @@ const white_isabelline = "#efefef";
 const light_sea_green = "#1fb299";
 const sea_green = "#27debf";
 
+const createFormData = (video, body) => {
+  const data = new FormData();
+  data.append("file", {
+    name: "vid_name",
+    uri: "vid_uri"
+  });
+  Object.keys(video).forEach(key => {
+    data.append(key, body[key]);
+  });
+};
+
 class Screenomics extends Component {
   constructor(props) {
     super(props);
@@ -44,40 +55,23 @@ class Screenomics extends Component {
     }
   };
 
-  checkStatus = () => {
-    // RecorderManager.checkStatus();
-
-    const url =
-      "http://ec2-13-250-14-3.ap-southeast-1.compute.amazonaws.com:5000/upload";
+  uploadFile = () => {
+    const url = "";
+    const path =  `../${RNFS.ExternalStorageDirectoryPath}/Download/screenomics`
     RNFS.readDir(
-      `../${RNFS.ExternalStorageDirectoryPath}/Download/screenomics`
+      path
     ).then(res => {
-      console.log("reading file");
+      console.log("Reading file");
       res.map(file => {
-        const formData = new FormData();
-        const config = {
-          headers: {
-            "content-type": "application/json"
-          }
-        };
         RNFS.readFile(
-          `../${RNFS.ExternalStorageDirectoryPath}/Download/screenomics/${file.name}`,
+          path + `/${file.name}`,
           "base64"
-        ).then(res => {
-          console.log("appending");
-          axios
-            .post(url, { file: res }, config)
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
-          // formData.append("file", res);
+        ).then(val => {
+          // saving base64 file as .txt in main storage
+          // attempted using https://base64.guru/converter/decode/video to decode base64 result
+          // success
+          RNFS.writeFile(path + `/text.txt`, val, 'utf8')
         });
-        // .then(res => {
-        //   console.log("uploading");
-        //   axios
-        //     .post(url, formData, config)
-        //     .then(res => console.log(res))
-        //     .catch(err => console.log(err));
-        // });
       });
     });
   };
@@ -100,7 +94,7 @@ class Screenomics extends Component {
           ) : (
             <Text style={styles.textIdle}>IDLE</Text>
           )}
-          {/* <Button onPress={this.checkStatus} title="Uploading" /> */}
+          <Button onPress={this.uploadFile} title="Uploading" />
         </View>
       </Fragment>
     );
