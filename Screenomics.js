@@ -85,6 +85,7 @@ class Screenomics extends Component {
         <Modal
           isVisible={this.state.isModalVisible}
           onBackdropPress={() => this.setState({ isModalVisible: false })}
+          onBackButtonPress={() => this.setState({ isModalVisible: false })}
         >
           <View
             style={{
