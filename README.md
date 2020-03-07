@@ -1,18 +1,11 @@
-# Screen Recorder
-This project is set up using [create-react-native-app](https://github.com/react-community/create-react-native-app) by facebook.
+# Screenomics
+This project is forked from [this repo](https://github.com/ycswaves/react-native-screen-recorder) by ycswaves and is modified to fit the purpose of our project.
 
 ## Objective
 To enable react native app to make use of native modules, in this case, screen recording module.
 
 ## Accomplishement
 The screen recording feature is able to run on both platforms but the implementation is quite different on each platform.
-
-### iOS
-[ASScreenRecorder](https://github.com/alskipp/ASScreenRecorder) is included as an external library to handle the screen recording function. All I need to do is to create `RecorderManager` which exports the "start" and "stop" module functions for react-native app to call.
-
-The output video will be saved into iOS camera roll, therefore `CameraRoll` module (which is available from `react-native`) is used to retrieve the video*.
-
-_* In this app, it's naively assumed that the recording is always the latest video in the camara roll._
 
 ### Android
 _There seems no libraries similar to ASScreenRecorder on Android and due to the lack of experience on native app development, I have to heavily rely on other people's [work](#References) to come out with a solution for Android._
@@ -29,13 +22,7 @@ After exploring ["Sending Events to JavaScript"](https://facebook.github.io/reac
 
 
 ### References
-http://www.truiton.com/2015/05/capture-record-android-screen-using-mediaprojection-apis/
-
-https://github.com/vinceyuan/ReactRecorder
-
-https://medium.com/jamesob-com/recording-your-android-screen-7e0e75aae260
-
-https://medium.com/@wenchihhsieh/how-to-record-screen-in-android-ece7eff6bb77
+https://github.com/ycswaves/react-native-screen-recorder
 
 
 ## How to run this project locally

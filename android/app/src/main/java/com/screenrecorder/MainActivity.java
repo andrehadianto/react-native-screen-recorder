@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.IOException;
+import java.io.File;
 
 public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoListener {
 
@@ -61,6 +62,11 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         mHandler = new Handler();
+        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                "screenomics");
+        if (!f.exists()) {
+            f.mkdirs();
+        }
     }
 
     @Override
@@ -111,11 +117,18 @@ public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoL
 
     private Runnable captureInterval = new Runnable() {
         public void run() {
-            if (!mKeyguardManager.isKeyguardLocked()) {
-                initRecorder();
-                shareScreen();
+            try {
+                if (!mKeyguardManager.isKeyguardLocked()) {
+                    initRecorder();
+                    shareScreen();
+                }
+            } catch (Exception e) {
+                mMediaRecorder.stop();
+                mVirtualDisplay.release();
+                mMediaRecorder.release();
+                e.printStackTrace();
             }
-            mHandler.postDelayed(this, 10000);
+            mHandler.postDelayed(this, 5000);
         };
     };
 
