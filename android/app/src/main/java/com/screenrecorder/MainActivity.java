@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.File;
 import java.io.IOException;
+import java.io.File;
 
 public class MainActivity extends ReactActivity implements MediaRecorder.OnInfoListener {
 
